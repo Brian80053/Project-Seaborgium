@@ -1,76 +1,78 @@
 #include<stdio.h>
+#include<stdlib.h>
+#include<time.h>
 #include "main.h"
+// 0 밝혀진 빈 공간 1 밝혀진 지뢰 2 숨겨진 빈 공간 3 숨겨진 지뢰 9 플래그
 int main(){
-    printf("---- CLI Chess ----\n");
-    printf("Press Any Key to Continue\na");
-    char temp;
-    scanf("%c",&temp);
-    st map[9][501];
-    int i,j;
-    char map_init[9][501]={"  a b c d e f g h","8 R N B Q K B N R", "7 P P P P P P P P", "6 _ _ _ _ _ _ _ _", "5 _ _ _ _ _ _ _ _","4 _ _ _ _ _ _ _ _","3 _ _ _ _ _ _ _ _","2 P P P P P P P P","1 R N B Q K B N R"};
-    for(i=0; i<9; i++){
-        for(j=0; map_init[i][j]!='\0'; j++){
-            if(map[i][j].piece!=' ' && j!=0 && (i==1 || i==2)){
-                map[i][j].color = 1;
+    printf("---- CLI Minesweeper ----\n");
+    printf("Press Any Key to Continue\n");
+    int temp;
+    scanf("%d",&temp);
+    int map[17][31]={};
+    int mines[99]={};
+    int num[17][31]={};
+    init(map,mines);
+    check_number(map,num);
+}
+void check_number(int map[][31],int num[][31]){
+    int i;
+    int j;
+    int k;
+    int dist[8][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1}};
+    int nx,ny;
+    for(i=1; i<=16; i++){
+        for(j=1; j<=30; j++){
+            if(map[i][j]!=9 && map[i][j]%2==1){
+                continue;
             }
-            else if(map[i][j].piece!=' ' && j!=0 && (i==8 || i==7)){
-                map[i][j].color = 2;
+            for(k=0; k<8; k++){
+                nx=i+dist[k][0];
+                ny=j+dist[k][1];
+                if(nx<1 || nx >16 || ny<1 || ny>30){
+                    continue;
+                }
+                if(map[nx][ny]!=9 && map[nx][ny]%2==1){
+                    num[i][j]++;
+                }
             }
-            else{
-                map[i][j].color = 0;
-            }
-            map[i][j].piece=map_init[i][j];
         }
-    }
-    while(1){
-        output(map);
-        break;
     }
 }
-void output(st map[][501]){
+void init(int map[][31],int mines[]){
     int i,j;
-    for(i=0; i<9; i++){
-        for(j=0; map[i][j].piece!='\0'; j++){
-            if(map[i][j].piece=='P' && map[i][j].color == 1){
-                printf("\u265F");
-            }
-            else if(map[i][j].piece=='P' && map[i][j].color == 2){
-                printf("\u2659");
-            }
-            else if(map[i][j].piece=='N' && map[i][j].color == 1){
-                printf("\u265E");
-            }
-            else if(map[i][j].piece=='N' && map[i][j].color == 2){
-                printf("\u2658");
-            }
-            else if(map[i][j].piece=='B' && map[i][j].color == 1){
-                printf("\u265D");
-            }
-            else if(map[i][j].piece=='B' && map[i][j].color == 2){
-                printf("\u2657");
-            }
-            else if(map[i][j].piece=='R' && map[i][j].color == 1){
-                printf("\u265C");
-            }
-            else if(map[i][j].piece=='R' && map[i][j].color == 2){
-                printf("\u2656");
-            }
-            else if(map[i][j].piece=='Q' && map[i][j].color == 1){
-                printf("\u265B");
-            }
-            else if(map[i][j].piece=='Q' && map[i][j].color == 2){
-                printf("\u2655");
-            }
-            else if(map[i][j].piece=='K' && map[i][j].color == 1){
-                printf("\u265A");
-            }
-            else if(map[i][j].piece=='K' && map[i][j].color == 2){
-                printf("\u2654");
-            }
-            else{
-                printf("%c",map[i][j].piece);
+    int mine;
+    srand(time(NULL));
+    for(i=0; i<99; i++){
+        mine = rand()%480+1;
+        for(j=0; j<i; j++){
+            if(mines[j]==mine){
+                i--;
+                break;
             }
         }
-        printf("\n");
+        if(j!=i){
+            continue;
+        }
+        mines[i]=mine;
     }
+    int x,y;
+    for(i=0; i<99; i++){
+        x=mines[i]/30+1;
+        y=mines[i]%30;
+        if(y==0){
+            x-=1;
+            y+=30;
+        }
+        map[x][y]=1;
+    }
+    int temp=0;
+    for(i=1; i<=16; i++){
+        for(j=1; j<=30; j++){
+            map[i][j]+=2;
+            if(map[i][j]==3){
+                temp++;
+            }
+        }
+    }
+    printf("%d",temp);
 }
