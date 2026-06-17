@@ -65,10 +65,10 @@ int main(){
         //입력 확인
         printf("현재 플래그 모드: %s\n",flag ? "켜짐" : "꺼짐");
         printf("플래그 모드 설정 [F/N]\n");
-        printf("좌표를 입력해 주세요. (맨 왼쪽 위가 (1 1)\n");
+        printf("좌표를 입력해 주세요. (맨 왼쪽 위가 (1 1))\n");
+        printf("F/N X Y 식으로 입력\n");
         scanf("%c",&checker);
         scanf("%d %d",&x,&y);
-        printf("%d %d\n",x,y);
         if(checker=='F'){
             flag=1;                  
         }
