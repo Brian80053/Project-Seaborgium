@@ -23,57 +23,78 @@ int main(){
     int num[size_x][size_y];
     int flags[size_x][size_y];
     int visit[size_x][size_y];
-    init(map,mines,size_x,size_y,mine_num);
-    check_number(map,num,flags,size_x,size_y,mine_num,visit);
     int i,j;
     int turn = 0;
     int x,y;
     bool flag=0;
     while(1){
         //출력 시작
-        for(i=1; i<size_x; i++){
-            for(j=1; j<size_y; j++){
-                if(map[i][j]==9){
-                    printf("\u2691"); //임시 값
+        int seq=65;
+        if(turn!=0){
+            for(i=1; i<size_x; i++){
+                if(i==1){
+                    printf(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcd\n");
                 }
-                else if(map[i][j]>=2){
-                    printf("\u25A0");
-                }
-                else if(map[i][j]==1){
-                    printf("\u25A3");
-                }
-                else{
-                    if(num[i][j]==0){
-                        printf("\u25A1");
+                printf("%c",seq);
+                seq++;
+                for(j=1; j<size_y; j++){
+                    if(flags[i][j]==1){
+                        printf("\u2691");
+                    }
+                    else if(map[i][j]>=2){
+                        printf("\u25A0");
+                    }
+                    else if(map[i][j]==1){
+                        printf("\u25A3");
                     }
                     else{
-                        printf("%d",num[i][j]);
+                        if(num[i][j]==0){
+                            printf("\u25A1");
+                        }
+                        else{
+                            printf("%d",num[i][j]);
+                        }
                     }
                 }
+                printf("\n");
             }
-            printf("\n");
         }
         //입력 확인
         printf("현재 플래그 모드: %s\n플래그 모드 바꾸기 [F/N]\n",flag ? "켜짐" : "꺼짐");
         getchar();
         scanf("%c",&temp);
+        if(temp=='F'){
+            flag^=1;
+            printf("현재 플래그 모드: %s\n",flag ? "켜짐" : "꺼짐");
+        }
         getchar();
         printf("좌표를 입력해 주세요. (맨 왼쪽 위가 (1 1))\n");
         scanf("%d %d",&x,&y);
-        if(temp=='N'){
-            flag = false;
+        if(x<1 || x >size_x-1 || y<1 || y>size_y-1){
+            printf("유효하지 않는 좌표값입니다.\n");
+            continue;
+        }
+        if(flag==false){
             //지뢰면 처음 빼고 터트리기
-            if(turn==0 && map[x][y]==3){
-                
+            if(turn==0){
+                init(map,mines,size_x,size_y,mine_num,x,y);
+                check_number(map,num,flags,size_x,size_y,mine_num,visit);
+                search_out(x,y,visit,map,num,size_x,size_y);
+                for(i=1; i<size_x; i++){
+                    for(j=1; j<size_y; j++){
+                        visit[i][j]=0;
+                    }
+                }
+                turn++;
                 continue;
             }
             else if(map[x][y]==3){
+                game_over(size_x,size_y,flags,map,num);
                 //지뢰 출력
                 break;
             }
             //빈칸이면 DFS 탐색으로 꺼내기
             else if(map[x][y]==2){
-                printf("test");
                 search_out(x,y,visit,map,num,size_x,size_y);
                 for(i=1; i<size_x; i++){
                     for(j=1; j<size_y; j++){
@@ -83,14 +104,14 @@ int main(){
             }
             //주변 밝히기 -> 필요한 부분이 플래그 처리 되어있으면 넘기고 아니면 버려라
             else if(map[x][y]==0){
-            
+                light_up(map,flags,num[x][y],x,y,size_x,size_y,num);
             }
             else{
                 continue;
             }
+            turn++;
         }
-        else if(temp=='F'){
-            flag = true;
+        else if(flag==true){
             if(flags[x][y]==1){
                 flags[x][y]=0;
             }
@@ -104,26 +125,93 @@ int main(){
         else{
             continue;
         }
-        turn++;
     }
 }
+//game_over
+void game_over(int size_x,int size_y,int flags[][31],int map[][31],int num[][31]){
+    int i,j;
+    int seq=65;
+    for(i=1; i<size_x; i++){
+        if(i==1){
+        printf(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcd\n");
+        }
+        printf("%c",seq);
+        seq++;
+        for(j=1; j<size_y; j++){
+            if(flags[i][j]==1){
+                printf("\u2691");
+            }
+            else if(map[i][j]==1 || map[i][j]==3){
+                printf("\u25A3");
+            }
+            else{
+                if(num[i][j]==0){
+                    printf("\u25A1");
+                }
+                else{
+                    printf("%d",num[i][j]);
+                }
+            }
+        }
+        printf("\n");
+    }
+}
+//Light Up
+void light_up(int map[][31],int flag[][31],int num_v,int x,int y,int size_x,int size_y,int num[][31]){
+    if(num_v==0){
+        return;
+    }
+    int dist[8][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1}};
+    int nx,ny;
+    int i;
+    int cnt=0;
+    for(i=0; i<8; i++){
+        nx=x+dist[i][0];
+        ny=y+dist[i][1];
+        if(nx<1 || nx >size_x-1 || ny<1 || ny>size_y-1){
+            continue;
+        }
+        if(flag[nx][ny]==0 && map[x][y]==3){
+            //게임 오버
+            game_over(size_x,size_y,flag,map,num);
+            exit(0);
+        }
+        if(flag[nx][ny]==1){
+            cnt++;
+        }
+    }
+    if(cnt==num_v){
+        for(i=0; i<8; i++){
+            nx=x+dist[i][0];
+            ny=y+dist[i][1];
+            if(flag[nx][ny]==0){
+                map[nx][ny]-=2;
+            }
+        }
+    }
+    else{
+        return;
+    }
+}
+//Search Out
 void search_out(int x,int y,int visit[][31],int map[][31],int num[][31],int size_x,int size_y){
     int i,j;
     int dist[8][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1}};
     int nx,ny;
     //일단 방문한 채로
-    if(visit[i][j]==1){
+    if(visit[x][y]==1){
         return;
     }
-    visit[i][j]=1;
-    if(map[i][j]==3){
+    visit[x][y]=1;
+    if(map[x][y]==3){
         return;
     }
-    if(map[i][j]==2 && num[i][j]!=0){
-        map[i][j]-=2;
+    if(map[x][y]==2 && num[x][y]!=0){
+        map[x][y]-=2;
         return;
     }
     else{
+        map[x][y]-=2;
         for(i=0; i<8; i++){
             nx = x+dist[i][0];
             ny = y+dist[i][1];
@@ -137,6 +225,7 @@ void search_out(int x,int y,int visit[][31],int map[][31],int num[][31],int size
         }
     }
 }
+//Check Number
 void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int size_y,int mine_num,int visit[][31]){
     int i;
     int j;
@@ -168,8 +257,17 @@ void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int siz
         }
     }
 }
-void init(int map[][31],int mines[],int size_x,int size_y,int mine_num){
-    int i,j;
+//Init
+void init(int map[][31],int mines[],int size_x,int size_y,int mine_num,int x,int y){
+    int i,j,k;
+    int avoids[9]={(x-2)*(size_y-1)+y-1,(x-2)*(size_y-1)+y,(x-2)*(size_y-1)+y+1,
+                   x*(size_y-1)+y-1,x*(size_y-1)+y,x*(size_y-1)+y+1,
+                   (x-1)*(size_y-1)+y-1,(x-1)*(size_y-1)+y,(x-1)*(size_y-1)+y+1};
+    int dist[9][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1},{0,0}};
+    for(i=0; i<=8; i++){
+        printf("%d ",avoids[i]);
+    }
+    printf("\n");
     for(i=1; i<size_x; i++){
         for(j=1; j<size_y; j++){
             map[i][j]=0;
@@ -188,21 +286,41 @@ void init(int map[][31],int mines[],int size_x,int size_y,int mine_num){
         if(j!=i){
             continue;
         }
+        for(k=0; k<=8; k++){
+            if(mine==avoids[k]){
+                i--;
+                break;
+            }   
+        }
+        if(k!=9){
+            continue;
+        }
         mines[i]=mine;
     }
-    int x,y;
+    int x_loc,y_loc;
     for(i=0; i<mine_num; i++){
-        x=mines[i]/(size_y-1)+1;
-        y=mines[i]%(size_y-1);
-        if(y==0){
-            x-=1;
-            y+=size_y;
+        x_loc=mines[i]/(size_y-1)+1;
+        y_loc=mines[i]%(size_y-1);
+        if(y_loc==0){
+            x_loc-=1;
+            y_loc+=size_y;
         }
-        map[x][y]=1;
+        map[x_loc][y_loc]=1;
     }
     for(i=1; i<size_x; i++){
         for(j=1; j<size_y; j++){
             map[i][j]+=2;
+        }
+    }
+    int nx,ny;
+    for(k=0; k<=8; k++){
+        nx=x+dist[k][0];
+        ny=y+dist[k][1];
+        if(nx<1 || nx >size_x-1 || ny<1 || ny>size_y-1){
+            continue;
+        }
+        else{
+            map[nx][ny]-=2;
         }
     }
 }
