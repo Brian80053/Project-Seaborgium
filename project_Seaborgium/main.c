@@ -10,9 +10,11 @@ int main(){
     printf("Press Any Key to Continue\n");
     char temp;
     scanf("%c",&temp);
+    while(getchar() != '\n');    
     printf("모드를 선택하세요.\n[1. 기본 모드]\n");
     int temp2;
     scanf("%d",&temp2);
+    while(getchar() != '\n');
     if(temp2==1){
         int size_x = 17;
         int size_y = 31;
@@ -27,6 +29,7 @@ int main(){
     int turn = 0;
     int x,y;
     bool flag=0;
+    char checker;
     while(1){
         //출력 시작
         int seq=65;
@@ -60,16 +63,19 @@ int main(){
             }
         }
         //입력 확인
-        printf("현재 플래그 모드: %s\n플래그 모드 바꾸기 [F/N]\n",flag ? "켜짐" : "꺼짐");
-        getchar();
-        scanf("%c",&temp);
-        if(temp=='F'){
-            flag^=1;
-            printf("현재 플래그 모드: %s\n",flag ? "켜짐" : "꺼짐");
-        }
-        getchar();
-        printf("좌표를 입력해 주세요. (맨 왼쪽 위가 (1 1))\n");
+        printf("현재 플래그 모드: %s\n",flag ? "켜짐" : "꺼짐");
+        printf("플래그 모드 설정 [F/N]\n");
+        printf("좌표를 입력해 주세요. (맨 왼쪽 위가 (1 1)\n");
+        scanf("%c",&checker);
         scanf("%d %d",&x,&y);
+        printf("%d %d\n",x,y);
+        if(checker=='F'){
+            flag=1;                  
+        }
+        else{
+            flag=0;
+        }
+        while (getchar() != '\n');
         if(x<1 || x >size_x-1 || y<1 || y>size_y-1){
             printf("유효하지 않는 좌표값입니다.\n");
             continue;
@@ -264,10 +270,6 @@ void init(int map[][31],int mines[],int size_x,int size_y,int mine_num,int x,int
                    x*(size_y-1)+y-1,x*(size_y-1)+y,x*(size_y-1)+y+1,
                    (x-1)*(size_y-1)+y-1,(x-1)*(size_y-1)+y,(x-1)*(size_y-1)+y+1};
     int dist[9][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1},{0,0}};
-    for(i=0; i<=8; i++){
-        printf("%d ",avoids[i]);
-    }
-    printf("\n");
     for(i=1; i<size_x; i++){
         for(j=1; j<size_y; j++){
             map[i][j]=0;
