@@ -5,13 +5,13 @@
 #include "main.h"
 // 0 밝혀진 빈 공간 1 밝혀진 지뢰 2 숨겨진 빈 공간 3 숨겨진 지뢰 9 플래그
 int main(){
-    int size_x=17,size_y=31,mine_num=99;
+    int size_x,size_y,mine_num;
     printf("---- CLI Minesweeper ----\n");
     printf("Press Any Key to Continue\n");
     char temp;
     scanf("%c",&temp);
     while(getchar() != '\n');    
-    printf("모드를 선택하세요.\n[1. 기본 모드]\n");
+    printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드]\n");
     int temp2;
     scanf("%d",&temp2);
     while(getchar() != '\n');
@@ -34,6 +34,7 @@ int main(){
         //출력 시작
         int seq=65;
         if(turn!=0){
+            printf("세로 축: %d개, 가로 축: %d개, 지뢰 개수: %d개\n",size_x,size_y,mine_num);
             for(i=1; i<size_x; i++){
                 if(i==1){
                     printf(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcd\n");
@@ -68,7 +69,7 @@ int main(){
         printf("좌표를 입력해 주세요. (맨 왼쪽 위가 (1 1))\n");
         printf("F/N X Y 식으로 입력\n");
         scanf("%c",&checker);
-        scanf("%d %d",&x,&y);
+        scanf("%d %d",&y,&x);
         if(checker=='F'){
             flag=1;                  
         }
@@ -110,7 +111,7 @@ int main(){
             }
             //주변 밝히기 -> 필요한 부분이 플래그 처리 되어있으면 넘기고 아니면 버려라
             else if(map[x][y]==0){
-                light_up(map,flags,num[x][y],x,y,size_x,size_y,num);
+                light_up(map,flags,num[x][y],x,y,size_x,size_y,num);              
             }
             else{
                 continue;
@@ -164,9 +165,6 @@ void game_over(int size_x,int size_y,int flags[][31],int map[][31],int num[][31]
 }
 //Light Up
 void light_up(int map[][31],int flag[][31],int num_v,int x,int y,int size_x,int size_y,int num[][31]){
-    if(num_v==0){
-        return;
-    }
     int dist[8][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1}};
     int nx,ny;
     int i;
@@ -190,7 +188,10 @@ void light_up(int map[][31],int flag[][31],int num_v,int x,int y,int size_x,int 
         for(i=0; i<8; i++){
             nx=x+dist[i][0];
             ny=y+dist[i][1];
-            if(flag[nx][ny]==0){
+            if(nx<1 || nx >size_x-1 || ny<1 || ny>size_y-1){
+                continue;
+            }
+            if(map[nx][ny]==2 || map[nx][ny]==3){
                 map[nx][ny]-=2;
             }
         }
