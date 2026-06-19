@@ -10,15 +10,27 @@ int main(){
     printf("Press Any Key to Continue\n");
     char temp;
     scanf("%c",&temp);
-    while(getchar() != '\n');    
+    while(getchar() != '\n');
     printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드]\n");
     int temp2;
     scanf("%d",&temp2);
-    while(getchar() != '\n');
+    while(getchar() != '\n');    
     if(temp2==1){
-        int size_x = 17;
-        int size_y = 31;
-        int mine_num = 99;
+        size_x = 17;
+        size_y = 31;
+        mine_num = 99;
+        printf("세로 축: %d개, 가로 축: %d개, 지뢰 개수: %d개\n",size_x,size_y,mine_num);
+    }
+    else if(temp2==2){
+        srand(time(NULL));
+        size_x = rand()%50+1;
+        size_y = 31;
+        mine_num = rand()%(size_x*size_y/2)+1;
+        printf("세로 축: %d개, 가로 축: %d개, 지뢰 개수: %d개\n",size_x,size_y,mine_num);
+    }
+    else{
+        printf("종료\n");
+        return 0;
     }
     int map[size_x][size_y];
     int mines[mine_num];
@@ -34,13 +46,17 @@ int main(){
         //출력 시작
         int seq=65;
         if(turn!=0){
-            printf("세로 축: %d개, 가로 축: %d개, 지뢰 개수: %d개\n",size_x,size_y,mine_num);
             for(i=1; i<size_x; i++){
                 if(i==1){
                     printf(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcd\n");
                 }
                 printf("%c",seq);
-                seq++;
+                if(seq=='Z'){
+                    seq='a';
+                }
+                else{
+                    seq++;
+                }
                 for(j=1; j<size_y; j++){
                     if(flags[i][j]==1){
                         printf("\u2691");
@@ -76,7 +92,6 @@ int main(){
         else{
             flag=0;
         }
-        while (getchar() != '\n');
         if(x<1 || x >size_x-1 || y<1 || y>size_y-1){
             printf("유효하지 않는 좌표값입니다.\n");
             continue;
@@ -175,7 +190,7 @@ void light_up(int map[][31],int flag[][31],int num_v,int x,int y,int size_x,int 
         if(nx<1 || nx >size_x-1 || ny<1 || ny>size_y-1){
             continue;
         }
-        if(flag[nx][ny]==0 && map[x][y]==3){
+        if(flag[nx][ny]==0 && map[nx][ny]==3){
             //게임 오버
             game_over(size_x,size_y,flag,map,num);
             exit(0);
