@@ -5,6 +5,7 @@
 #include "main.h"
 // 0 밝혀진 빈 공간 1 밝혀진 지뢰 2 숨겨진 빈 공간 3 숨겨진 지뢰 9 플래그
 int main(){
+    LABEL_ONE:
     int ward_num = 9999;
     int size_x,size_y,mine_num;
     printf("---- CLI Minesweeper ----\n");
@@ -46,7 +47,30 @@ int main(){
     int x,y;
     bool flag=0;
     char checker;
+    bool win_checker;
     while(1){
+        win_checker=0;
+        // 성공 체크
+        for(i=1; i<size_x; i++){
+            for(j=1; j<size_y; j++){
+                if(map[i][j]==2){
+                    win_checker=1;
+                    break;
+                }
+            }
+            if(map[i][j]==2){
+                continue;
+            }
+        }
+        win_checker=1;
+        if(win_checker==1){
+            char mode[4][101]={"기본","랜덤","노플래그","와드"};
+            printf("축하합니다. %s모드에서 모든 지뢰를 발견하는데 성공했습니다.\n",mode[temp2]);
+            printf("[다시 플레이하기]\n");
+            int temp3;
+            scanf("%d",temp3);
+            goto LABEL_ONE;
+        }
         //출력 시작
         if(turn!=0){
             output(size_x,size_y,flags,map,num,ward_num);
