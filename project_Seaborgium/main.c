@@ -5,17 +5,18 @@
 #include "main.h"
 // 0 밝혀진 빈 공간 1 밝혀진 지뢰 2 숨겨진 빈 공간 3 숨겨진 지뢰 9 플래그
 int main(){
+    int ward_num = 9999;
     int size_x,size_y,mine_num;
     printf("---- CLI Minesweeper ----\n");
     printf("Press Any Key to Continue\n");
     char temp;
     scanf("%c",&temp);
     while(getchar() != '\n');
-    printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드]\n");
+    printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드] [3. 노플래그 모드] [4.와드 모드]\n");
     int temp2;
     scanf("%d",&temp2);
     while(getchar() != '\n');    
-    if(temp2==1){
+    if(temp2==1 || temp2 == 3 || temp2==4){
         size_x = 17;
         size_y = 31;
         mine_num = 99;
@@ -32,6 +33,9 @@ int main(){
         printf("종료\n");
         return 0;
     }
+    if(temp2==4){
+        ward_num=10;
+    }
     int map[size_x][size_y];
     int mines[mine_num];
     int num[size_x][size_y];
@@ -44,52 +48,42 @@ int main(){
     char checker;
     while(1){
         //출력 시작
-        int seq=65;
         if(turn!=0){
-            for(i=1; i<size_x; i++){
-                if(i==1){
-                    printf(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcd\n");
-                }
-                printf("%c",seq);
-                if(seq=='Z'){
-                    seq='a';
-                }
-                else{
-                    seq++;
-                }
-                for(j=1; j<size_y; j++){
-                    if(flags[i][j]==1){
-                        printf("\u2691");
-                    }
-                    else if(map[i][j]>=2){
-                        printf("\u25A0");
-                    }
-                    else if(map[i][j]==1){
-                        printf("\u25A3");
-                    }
-                    else{
-                        if(num[i][j]==0){
-                            printf("\u25A1");
-                        }
-                        else{
-                            printf("%d",num[i][j]);
-                        }
-                    }
-                }
-                printf("\n");
-            }
+            output(size_x,size_y,flags,map,num,ward_num);
         }
         //입력 확인
-        printf("현재 플래그 모드: %s\n",flag ? "켜짐" : "꺼짐");
-        printf("플래그 모드 설정 [F/N]\n");
+        if(temp2!=3 && temp2!=4){
+            printf("현재 플래그 모드: %s\n",flag ? "켜짐" : "꺼짐");
+            printf("플래그 모드 설정 [F/N]\n");
+        }
+        if(temp2==4){
+            printf("현재 와드 모드: %s\n",flag ? "켜짐" : "꺼짐");
+            printf("와드 모드 설정 [W/N]\n");            
+        }
         printf("좌표를 입력해 주세요. (맨 왼쪽 위가 (1 1))\n");
-        printf("F/N X Y 식으로 입력\n");
+        if(temp2!=3 && temp2!=4){
+            printf("F/N X Y 식으로 입력\n");
+        }
+        if(temp2==3){
+            printf("\033[31m깃발을 사용 할 수 없습니다!\033[0m C X Y 식으로 입력\n");
+        }
+        if(temp2==4){
+            printf("\033[31m와드를 사용할 수 있습니다!\033[0m W/N X Y 식으로 입력\n");            
+        }
         scanf("%c",&checker);
         scanf("%d %d",&y,&x);
-        if(checker=='F'){
-            flag=1;                  
+        while(getchar() != '\n');
+        if(checker=='F' && temp2!=3){
+            flag=1;          
         }
-        else{
+        else if(checker=='F' && temp2==3){
+            printf("\033[31m\033[1m깃발을 사용 할 수 없습니다!\033[0m");
+            return 0;
+        }
+        if(checker =='W' && temp2==4){
+            flag=1;
+        }
+        if(checker=='N'){
             flag=0;
         }
         if(x<1 || x >size_x-1 || y<1 || y>size_y-1){
@@ -134,6 +128,22 @@ int main(){
             turn++;
         }
         else if(flag==true){
+            if(ward_num != 9999){
+                if(flags[x][y]==1){
+                    if(ward_num<=10){
+                        ward_num++;
+                        flags[x][y]=0;
+                    }
+                    continue;
+                }
+                if(ward_num<=0){
+                    printf("설치할 수 없습니다.\n");
+                    continue;
+                }
+                ward_num--;
+                flags[x][y]=1;
+                continue;
+            }
             if(flags[x][y]==1){
                 flags[x][y]=0;
             }
@@ -147,6 +157,94 @@ int main(){
         else{
             continue;
         }
+    }
+}
+//output
+void output(int size_x,int size_y,int flags[][31],int map[][31],int num[][31],int ward_num){
+    if(ward_num==9999){
+        int seq=65;
+        int i,j;
+        for(i=1; i<size_x; i++){
+            if(i==1){
+                printf(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcd\n");
+            }
+            printf("%c",seq);
+            if(seq=='Z'){
+                seq='a';
+            }
+            else{
+                seq++;
+            }
+            for(j=1; j<size_y; j++){
+                if(flags[i][j]==1){
+                    printf("\u2691");
+                }
+                else if(map[i][j]>=2){
+                    printf("\u25A0");
+                }
+                else if(map[i][j]==1){
+                    printf("\u25A3");
+                }
+                else{
+                    if(num[i][j]==0){
+                        printf("\u25A1");
+                    }
+                    else{
+                        printf("%d",num[i][j]);
+                    }                    
+                }
+            }
+            printf("\n");
+        }
+        return;
+    }
+    else{
+        int dist[8][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1}};
+        int seq=65;
+        int i,j,k;
+        int nx=0,ny=0;
+        bool ward_exists = 0;
+        for(i=1; i<size_x; i++){
+            if(i==1){
+                printf(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcd\n");
+            }
+            printf("%c",seq);
+            if(seq=='Z'){
+                seq='a';
+            }
+            else{
+                seq++;
+            }
+            for(j=1; j<size_y; j++){
+                ward_exists=0;
+                if(flags[i][j]==1){
+                    printf("\u25B2");
+                    continue;
+                }
+                for(k=0; k<8; k++){
+                    nx=i+dist[k][0];
+                    ny=j+dist[k][1];
+                    if(nx<1 || nx >size_x-1 || ny<1 || ny>size_y-1){
+                       continue;
+                    }
+                    if(flags[nx][ny]==1){
+                        if(num[i][j]==0){
+                            printf("\u25A1");
+                        }
+                        else{
+                            printf("%d",num[i][j]);
+                        }
+                        ward_exists=1;
+                        break;
+                    }
+                }
+                if(ward_exists==0){
+                    printf("\u25A0");                    
+                }
+            }
+            printf("\n");
+        }      
+        return;  
     }
 }
 //game_over
