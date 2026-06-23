@@ -62,8 +62,7 @@ int main(){
                 continue;
             }
         }
-        win_checker=1;
-        if(win_checker==1){
+        if(win_checker==0){
             char mode[4][101]={"기본","랜덤","노플래그","와드"};
             printf("축하합니다. %s모드에서 모든 지뢰를 발견하는데 성공했습니다.\n",mode[temp2]);
             printf("[다시 플레이하기]\n");
