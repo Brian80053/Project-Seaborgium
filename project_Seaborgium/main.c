@@ -131,7 +131,7 @@ int main(){
         while(getchar() != '\n');
         int y=(int)temp_y-64;
         int x=(int)temp_x-64;
-        if(checker=='F' && temp2!=3){
+        if(checker=='F' && temp2!=3 && temp2!=4){
             flag=1;          
         }
         else if(checker=='F' && temp2==3){
@@ -212,8 +212,8 @@ int main(){
                 continue;
             }
             if(flags[x][y]==1){
-                printf("test");
-                break;
+                flags[x][y]=0;
+                continue;
             }
             if(map[x][y]==5){
                 game_over(size_x,size_y,flags,map,num);
