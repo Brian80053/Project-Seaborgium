@@ -13,7 +13,7 @@ int main(){
     char temp;
     scanf("%c",&temp);
     while(getchar() != '\n');
-    printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드] [3. 노플래그 모드] [4.와드 모드] [5.대전차 지뢰 모드]\n");
+    printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드] [3. 노플래그 모드] [4.와드 모드] [5.대전차 지뢰 모드] [6.타임어택 모드]\n");
     int temp2;
     scanf("%d",&temp2);
     while(getchar() != '\n');
@@ -32,7 +32,10 @@ int main(){
     else if(temp2==5){
         printf("지구를 위해 지뢰는 제거합시다! 일부 지뢰가 flag대신 dig해야만 안전해집니다.\n");
     }
-    if(temp2==1 || temp2 == 3 || temp2==4 || temp2==5){
+    else if(temp2==6){
+        printf("");
+    }
+    if(temp2==1 || temp2 == 3 || temp2==4 || temp2==5 || temp2 == 6){
         size_x = 17;
         size_y = 31;
         mine_num = 99;
@@ -64,6 +67,7 @@ int main(){
     bool flag=0;
     char checker;
     bool win_checker;
+    clock_t start,end;
     while(1){
         win_checker=0;
         // 성공 체크
@@ -79,7 +83,7 @@ int main(){
             }
         }
         if(win_checker==0){
-            char mode[5][101]={"기본","랜덤","노플래그","와드","대전차지뢰"};
+            char mode[11][101]={"기본","랜덤","노플래그","와드","대전차지뢰","타임 어택"};
             printf("축하합니다. %s모드에서 모든 지뢰를 발견하는데 성공했습니다.\n",mode[temp2-1]);
             printf("[다시 플레이하기]\n");
             int temp3;
@@ -109,9 +113,24 @@ int main(){
         if(temp2==4){
             printf("\033[31m와드를 사용할 수 있습니다!\033[0m W/N X Y 식으로 입력\n");            
         }
-        scanf("%c",&checker);
-        scanf("%d %d",&y,&x);
+        end=clock();
+        if(turn!=0 && (double)(end-start)/ CLOCKS_PER_SEC>10 && temp2==6){
+            game_over(size_x,size_y,flags,map,num);
+            //지뢰 출력
+            char mode[11][101]={"기본","랜덤","노플래그","와드","대전차지뢰","타임 어택"};
+            printf("%s모드에서 시간이 초과되었습니다..\n",mode[temp2-1]);
+            printf("[다시 플레이하기]\n");
+            int temp3;
+            scanf("%d",temp3);
+            goto LABEL_ONE;       
+        }
+        start = clock();
+        scanf("%c ",&checker);
+        char temp_y,temp_x;
+        scanf("%c %c",&temp_y,&temp_x);
         while(getchar() != '\n');
+        int y=(int)temp_y-64;
+        int x=(int)temp_x-64;
         if(checker=='F' && temp2!=3){
             flag=1;          
         }
@@ -149,7 +168,7 @@ int main(){
             else if(map[x][y]==3){
                 game_over(size_x,size_y,flags,map,num);
                 //지뢰 출력
-                char mode[5][101]={"기본","랜덤","노플래그","와드","대전차지뢰"};
+                char mode[11][101]={"기본","랜덤","노플래그","와드","대전차지뢰","타임 어택"};
                 printf("%s모드에서 지뢰를 밟으셨습니다..\n",mode[temp2-1]);
                 printf("[다시 플레이하기]\n");
                 int temp3;
@@ -193,12 +212,13 @@ int main(){
                 continue;
             }
             if(flags[x][y]==1){
-                flags[x][y]=0;
+                printf("test");
+                break;
             }
             if(map[x][y]==5){
                 game_over(size_x,size_y,flags,map,num);
                 //지뢰 출력
-                char mode[5][101]={"기본","랜덤","노플래그","와드","대전차지뢰"};
+                char mode[11][101]={"기본","랜덤","노플래그","와드","대전차지뢰","타임 어택"};
                 printf("%s모드에서 지뢰를 밟으셨습니다..\n",mode[temp2-1]);
                 printf("[다시 플레이하기]\n");
                 int temp3;
@@ -219,7 +239,7 @@ int main(){
         }
     }
 }
-//output
+//output 현재 지뢰 상태 출력
 void output(int size_x,int size_y,int flags[][31],int map[][31],int num[][31],int ward_num,int anti_tank_num[][31]){
     if(ward_num==9999){
         int seq=65;
@@ -312,7 +332,7 @@ void output(int size_x,int size_y,int flags[][31],int map[][31],int num[][31],in
         return;  
     }
 }
-//game_over
+//game_over 게임이 끝났을 때 지뢰가 모두 밝혀진 채로 출력
 void game_over(int size_x,int size_y,int flags[][31],int map[][31],int num[][31]){
     int i,j;
     int seq=65;
@@ -344,7 +364,7 @@ void game_over(int size_x,int size_y,int flags[][31],int map[][31],int num[][31]
         printf("\n");
     }
 }
-//Light Up
+//Light Up 이미 밝혀진 칸을 지정했을 때 주변 아홉 칸에 이미 정확한 곳에 지뢰를 배치했을 경우 밝혀주는 편의 기능
 void light_up(int map[][31],int flag[][31],int num_v,int x,int y,int size_x,int size_y,int num[][31]){
     int dist[8][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1}};
     int nx,ny;
@@ -381,7 +401,7 @@ void light_up(int map[][31],int flag[][31],int num_v,int x,int y,int size_x,int 
         return;
     }
 }
-//Search Out
+//Search Out DFS를 통해 탐색을 실시하며 인접한 빈칸을 밝히는 기능
 void search_out(int x,int y,int visit[][31],int map[][31],int num[][31],int size_x,int size_y){
     int i,j;
     int dist[8][2]={{1,0},{1,-1},{1,1},{0,1},{0,-1},{-1,0},{-1,1},{-1,-1}};
@@ -413,7 +433,7 @@ void search_out(int x,int y,int visit[][31],int map[][31],int num[][31],int size
         }
     }
 }
-//Check Number
+//Check Number 주변 8칸에 지뢰가 몇개 있는지 계산하는 기능
 void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int size_y,int mine_num,int visit[][31],int anti_tank_num[][31],int temp2){
     int i;
     int j;
@@ -449,7 +469,7 @@ void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int siz
         }
     }
 }
-//Init
+//Init 초기 설정 (지뢰 랜덤 배치 (클릭 주변 9개는 지뢰 X), 배열 초기화)
 void init(int map[][31],int mines[],int size_x,int size_y,int mine_num,int x,int y,int temp2){
     int i,j,k;
     int avoids[9]={(x-2)*(size_y-1)+y-1,(x-2)*(size_y-1)+y,(x-2)*(size_y-1)+y+1,

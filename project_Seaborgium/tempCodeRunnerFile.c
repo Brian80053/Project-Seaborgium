@@ -1,1 +1,1 @@
-void check_number(int map[][31],int num[][31]){
+void light_up(int map[][31],int flag[][31],int num_v,int x,int y,int size_x,int size_y)
