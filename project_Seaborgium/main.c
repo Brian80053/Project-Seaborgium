@@ -3,7 +3,7 @@
 #include<stdlib.h>
 #include<time.h>
 #include "main.h"
-// 0 밝혀진 빈 공간 1 밝혀진 지뢰 2 숨겨진 빈 공간 3 숨겨진 지뢰 9 플래그
+// 0 밝혀진 빈 공간 1 밝혀진 지뢰 2 숨겨진 빈 공간 3 숨겨진 지뢰 5 숨겨진 대전차 지뢰 7 밝혀진 대전차 지뢰 9 플래그
 int main(){
     LABEL_ONE:
     int ward_num = 9999;
@@ -13,11 +13,26 @@ int main(){
     char temp;
     scanf("%c",&temp);
     while(getchar() != '\n');
-    printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드] [3. 노플래그 모드] [4.와드 모드]\n");
+    printf("모드를 선택하세요.\n[1. 기본 모드] [2. 랜덤 모드] [3. 노플래그 모드] [4.와드 모드] [5.대전차 지뢰 모드]\n");
     int temp2;
     scanf("%d",&temp2);
-    while(getchar() != '\n');    
-    if(temp2==1 || temp2 == 3 || temp2==4){
+    while(getchar() != '\n');
+    if(temp2==1){
+        printf("…진짜 설명이 필요할까요? 기본 모드입니다!\n");
+    }
+    else if(temp2==2){
+        printf("당신의 운을 시험해보세요.\n");
+    }
+    else if(temp2==3){
+        printf("지뢰위에 깃발을 꽃으면 터지는 건 상식이죠! flag를 쓸 수 없습니다.\n");
+    }
+    else if(temp2==4){
+        printf("직장인의 설움은 야근이죠.. 깃발 대신 와드를 박아서 시야를 넓혀보세요!\n");
+    }
+    else if(temp2==5){
+        printf("지구를 위해 지뢰는 제거합시다! 일부 지뢰가 flag대신 dig해야만 안전해집니다.\n");
+    }
+    if(temp2==1 || temp2 == 3 || temp2==4 || temp2==5){
         size_x = 17;
         size_y = 31;
         mine_num = 99;
@@ -42,6 +57,7 @@ int main(){
     int num[size_x][size_y];
     int flags[size_x][size_y];
     int visit[size_x][size_y];
+    int anti_tank_num[size_x][size_y];
     int i,j;
     int turn = 0;
     int x,y;
@@ -63,8 +79,8 @@ int main(){
             }
         }
         if(win_checker==0){
-            char mode[4][101]={"기본","랜덤","노플래그","와드"};
-            printf("축하합니다. %s모드에서 모든 지뢰를 발견하는데 성공했습니다.\n",mode[temp2]);
+            char mode[5][101]={"기본","랜덤","노플래그","와드","대전차지뢰"};
+            printf("축하합니다. %s모드에서 모든 지뢰를 발견하는데 성공했습니다.\n",mode[temp2-1]);
             printf("[다시 플레이하기]\n");
             int temp3;
             scanf("%d",temp3);
@@ -72,7 +88,7 @@ int main(){
         }
         //출력 시작
         if(turn!=0){
-            output(size_x,size_y,flags,map,num,ward_num);
+            output(size_x,size_y,flags,map,num,ward_num,anti_tank_num);
         }
         //입력 확인
         if(temp2!=3 && temp2!=4){
@@ -116,8 +132,8 @@ int main(){
         if(flag==false){
             //지뢰면 처음 빼고 터트리기
             if(turn==0){
-                init(map,mines,size_x,size_y,mine_num,x,y);
-                check_number(map,num,flags,size_x,size_y,mine_num,visit);
+                init(map,mines,size_x,size_y,mine_num,x,y,temp2);
+                check_number(map,num,flags,size_x,size_y,mine_num,visit,anti_tank_num,temp2);
                 search_out(x,y,visit,map,num,size_x,size_y);
                 for(i=1; i<size_x; i++){
                     for(j=1; j<size_y; j++){
@@ -127,9 +143,18 @@ int main(){
                 turn++;
                 continue;
             }
+            else if(map[x][y]==5){
+                map[x][y]+=2;
+            }
             else if(map[x][y]==3){
                 game_over(size_x,size_y,flags,map,num);
                 //지뢰 출력
+                char mode[5][101]={"기본","랜덤","노플래그","와드","대전차지뢰"};
+                printf("%s모드에서 지뢰를 밟으셨습니다..\n",mode[temp2-1]);
+                printf("[다시 플레이하기]\n");
+                int temp3;
+                scanf("%d",temp3);
+                goto LABEL_ONE;
                 break;
             }
             //빈칸이면 DFS 탐색으로 꺼내기
@@ -170,6 +195,18 @@ int main(){
             if(flags[x][y]==1){
                 flags[x][y]=0;
             }
+            if(map[x][y]==5){
+                game_over(size_x,size_y,flags,map,num);
+                //지뢰 출력
+                char mode[5][101]={"기본","랜덤","노플래그","와드","대전차지뢰"};
+                printf("%s모드에서 지뢰를 밟으셨습니다..\n",mode[temp2-1]);
+                printf("[다시 플레이하기]\n");
+                int temp3;
+                scanf("%d",temp3);
+                goto LABEL_ONE;
+                break;
+                break;
+            }
             else if(map[x][y]>=2){
                 flags[x][y]=1;
             }
@@ -183,7 +220,7 @@ int main(){
     }
 }
 //output
-void output(int size_x,int size_y,int flags[][31],int map[][31],int num[][31],int ward_num){
+void output(int size_x,int size_y,int flags[][31],int map[][31],int num[][31],int ward_num,int anti_tank_num[][31]){
     if(ward_num==9999){
         int seq=65;
         int i,j;
@@ -199,22 +236,27 @@ void output(int size_x,int size_y,int flags[][31],int map[][31],int num[][31],in
                 seq++;
             }
             for(j=1; j<size_y; j++){
+                int color[9]={37,31,32,33,34,35,36,3,1};
                 if(flags[i][j]==1){
-                    printf("\u2691");
+                    printf("\033[%dm\u2691\033[0m",color[anti_tank_num[i][j]]); //플래그
                 }
-                else if(map[i][j]>=2){
-                    printf("\u25A0");
+                else if(map[i][j]>=2 && map[i][j]<=5){
+                    printf("\u25A0"); //미발견된 타일
+                }
+                else if(map[i][j]==7){
+                    printf("\u25C9"); // 대전차 지뢰
                 }
                 else if(map[i][j]==1){
-                    printf("\u25A3");
+                    printf("\u25A3"); // 공개된 지뢰
                 }
                 else{
                     if(num[i][j]==0){
-                        printf("\u25A1");
+                        printf("\033[%dm\u25A1\033[0m",color[anti_tank_num[i][j]]);  //공개된 타일
                     }
                     else{
-                        printf("%d",num[i][j]);
-                    }                    
+                        //색깔 출력 필요
+                        printf("\033[%dm%d\033[0m",color[anti_tank_num[i][j]],num[i][j]);
+                    }          
                 }
             }
             printf("\n");
@@ -287,6 +329,9 @@ void game_over(int size_x,int size_y,int flags[][31],int map[][31],int num[][31]
             else if(map[i][j]==1 || map[i][j]==3){
                 printf("\u25A3");
             }
+            else if(map[i][j]==5 || map[i][j]==7){
+                printf("\u25C9");
+            }
             else{
                 if(num[i][j]==0){
                     printf("\u25A1");
@@ -346,7 +391,7 @@ void search_out(int x,int y,int visit[][31],int map[][31],int num[][31],int size
         return;
     }
     visit[x][y]=1;
-    if(map[x][y]==3){
+    if(map[x][y]==3 || map[x][y]==5){
         return;
     }
     if(map[x][y]==2 && num[x][y]!=0){
@@ -369,7 +414,7 @@ void search_out(int x,int y,int visit[][31],int map[][31],int num[][31],int size
     }
 }
 //Check Number
-void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int size_y,int mine_num,int visit[][31]){
+void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int size_y,int mine_num,int visit[][31],int anti_tank_num[][31],int temp2){
     int i;
     int j;
     int k;
@@ -380,6 +425,7 @@ void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int siz
             flags[i][j]=0;
             num[i][j]=0;
             visit[i][j]=0; 
+            anti_tank_num[i][j]=0;
         }  
     }
     for(i=1; i<size_x; i++){
@@ -393,15 +439,18 @@ void check_number(int map[][31],int num[][31],int flags[][31],int size_x,int siz
                 if(nx<1 || nx >size_x-1 || ny<1 || ny>size_y-1){
                     continue;
                 }
-                if(map[nx][ny]!=9 && map[nx][ny]%2==1){
+                if(map[nx][ny]!=9 && map[nx][ny]==3){
                     num[i][j]++;
+                }
+                if(map[nx][ny]!=9 && (map[nx][ny]==5 || map[nx][ny]==7)){
+                    anti_tank_num[i][j]++;
                 }
             }
         }
     }
 }
 //Init
-void init(int map[][31],int mines[],int size_x,int size_y,int mine_num,int x,int y){
+void init(int map[][31],int mines[],int size_x,int size_y,int mine_num,int x,int y,int temp2){
     int i,j,k;
     int avoids[9]={(x-2)*(size_y-1)+y-1,(x-2)*(size_y-1)+y,(x-2)*(size_y-1)+y+1,
                    x*(size_y-1)+y-1,x*(size_y-1)+y,x*(size_y-1)+y+1,
@@ -445,6 +494,9 @@ void init(int map[][31],int mines[],int size_x,int size_y,int mine_num,int x,int
             y_loc+=size_y;
         }
         map[x_loc][y_loc]=1;
+        if(temp2==5 && i<=(mine_num)/5){
+            map[x_loc][y_loc]+=2;
+        }
     }
     for(i=1; i<size_x; i++){
         for(j=1; j<size_y; j++){
