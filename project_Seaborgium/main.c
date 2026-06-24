@@ -33,7 +33,7 @@ int main(){
         printf("지구를 위해 지뢰는 제거합시다! 일부 지뢰가 flag대신 dig해야만 안전해집니다.\n");
     }
     else if(temp2==6){
-        printf("");
+        printf("더 빨리! 더 빨리! 더 빨리! (Plus vite! Plus vite! Plus vite!)\n");
     }
     if(temp2==1 || temp2 == 3 || temp2==4 || temp2==5 || temp2 == 6){
         size_x = 17;
