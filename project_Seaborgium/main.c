@@ -129,6 +129,9 @@ int main(){
         char temp_y,temp_x;
         scanf("%c %c",&temp_y,&temp_x);
         while(getchar() != '\n');
+        if(temp_y>='a' && temp_y<='d'){
+            temp_y-=6;
+        }
         int y=(int)temp_y-64;
         int x=(int)temp_x-64;
         if(checker=='F' && temp2!=3 && temp2!=4){
