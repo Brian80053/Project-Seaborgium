@@ -414,7 +414,7 @@ void search_out(int x,int y,int visit[][31],int map[][31],int num[][31],int size
     if(map[x][y]==3 || map[x][y]==5){
         return;
     }
-    if(map[x][y]==2 && num[x][y]!=0){
+    if((map[x][y]==2 || map[x][y]==0) && num[x][y]!=0){
         map[x][y]-=2;
         return;
     }
