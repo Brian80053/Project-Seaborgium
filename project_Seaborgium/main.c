@@ -90,7 +90,7 @@ int main(){
             printf("축하합니다. %s모드에서 모든 지뢰를 발견하는데 성공했습니다.\n",mode[temp2-1]);
             printf("[다시 플레이하기]\n");
             int temp3;
-            scanf("%d",temp3);
+            scanf("%d",&temp3);
             goto LABEL_ONE;
         }
         //출력 시작
@@ -124,7 +124,7 @@ int main(){
             printf("%s모드에서 시간이 초과되었습니다..\n",mode[temp2-1]);
             printf("[다시 플레이하기]\n");
             int temp3;
-            scanf("%d",temp3);
+            scanf("%d",&temp3);
             goto LABEL_ONE;       
         }
         start = clock();
@@ -178,7 +178,7 @@ int main(){
                 printf("%s모드에서 지뢰를 밟으셨습니다..\n",mode[temp2-1]);
                 printf("[다시 플레이하기]\n");
                 int temp3;
-                scanf("%d",temp3);
+                scanf("%d",&temp3);
                 goto LABEL_ONE;
                 break;
             }
@@ -228,7 +228,7 @@ int main(){
                 printf("%s모드에서 지뢰를 밟으셨습니다..\n",mode[temp2-1]);
                 printf("[다시 플레이하기]\n");
                 int temp3;
-                scanf("%d",temp3);
+                scanf("%d",&temp3);
                 goto LABEL_ONE;
                 break;
                 break;
