@@ -70,6 +70,9 @@ int main(){
     clock_t start,end;
     while(1){
         win_checker=0;
+        if(turn!=0){
+            system("cls");
+        }
         // 성공 체크
         for(i=1; i<size_x; i++){
             for(j=1; j<size_y; j++){
