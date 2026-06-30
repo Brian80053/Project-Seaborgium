@@ -24,4 +24,8 @@
 
 ## 실행 방법
 git을 통해 다운로드 받을 수 있다. 터미널을 켜고 cd를 통해 원하는 경로에 들어간다.
-그 후 git clone https://github.com/Brian80053/Project-Seaborgium.git를 입력하면 해당 경로에 다운로드 받은 파일이 나올 것이다.
+그 후 
+```
+git clone https://github.com/Brian80053/Project-Seaborgium.git
+```
+를 입력하면 해당 경로에 다운로드 받은 파일이 나올 것이다.
